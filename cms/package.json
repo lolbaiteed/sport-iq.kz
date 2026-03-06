@@ -1,5 +1,5 @@
 {
-  "name": "sport-iq-kz",
+  "name": "cms",
   "version": "0.1.0",
   "private": true,
   "description": "A Strapi application",
@@ -35,7 +35,7 @@
     "npm": ">=6.0.0"
   },
   "strapi": {
-    "uuid": "0ab9ff87-e079-4408-a3f0-ff606347e4b4",
-    "installId": "39a70d8eb7c1cdee1e6503f59044f73ca136f9475f14139aecb5f922b69100ce"
+    "uuid": "4cf3ada0-4331-486c-a735-795f7f959f5b",
+    "installId": "b2745c383d1a2c93e08dc54cc95375c75ac819146cfec5a5a49348077e763c93"
   }
 }
