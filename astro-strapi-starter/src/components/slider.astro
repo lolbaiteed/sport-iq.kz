@@ -1,0 +1,146 @@
+---
+const { coaches = [], athletes = [] } = Astro.props;
+const STRAPI_URL = import.meta.env.STRAPI_URL;
+
+function getPhotoUrl(person) {
+  const url = person.photo?.data?.attributes?.url;
+  return url ? `${STRAPI_URL}${url}` : null;
+}
+---
+
+<section class="py-16 bg-slate-100">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- Title -->
+    <h2 class="font-montserrat font-bold text-4xl text-brand-primary text-center mb-8">Our Pride</h2>
+
+    <!-- Tab buttons -->
+    <div class="flex justify-center gap-4 mb-10">
+      <button data-tab="coaches" class="pride-tab active-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-white bg-brand-primary transition-colors">
+        Coaches
+      </button>
+      <button data-tab="athletes" class="pride-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-brand-primary bg-white transition-colors">
+        Athletes
+      </button>
+    </div>
+
+    <!-- Slider -->
+    <div class="relative">
+
+      <!-- Prev -->
+      <button id="pride-prev" class="absolute left-0 top-1/3 -translate-y-1/2 -translate-x-2 w-10 h-10 bg-brand-primary text-white rounded-full shadow-lg flex items-center justify-center z-10 hover:bg-brand-primary-bright transition-colors">
+        <i class="fa-solid fa-chevron-left text-sm"></i>
+      </button>
+
+      <!-- Track wrapper — overflow hidden but show partial cards on edges -->
+      <div class="overflow-hidden mx-6" id="pride-slider">
+        <div class="flex gap-5 transition-transform duration-500 ease-in-out" id="pride-track">
+
+          <!-- Coaches -->
+          <div id="pride-coaches" class="pride-group flex gap-5">
+            {coaches.map(person => {
+              const photoUrl = getPhotoUrl(person);
+              return (
+                <div class="flex-none w-[220px] bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                  {photoUrl
+                    ? <img src={photoUrl} alt={person.name} class="w-full object-cover object-top" />
+                    : <div class="w-full h-[260px] bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-user text-4xl text-slate-300"></i></div>
+                  }
+                  <div class="p-4 text-center">
+                    <p class="font-montserrat font-bold text-brand-primary text-sm leading-tight mb-1">{person.name}</p>
+                    <p class="text-slate-500 text-xs leading-snug">{person.sport}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <!-- Athletes (hidden initially) -->
+          <div id="pride-athletes" class="pride-group flex gap-5 hidden">
+            {athletes.map(person => {
+              const photoUrl = getPhotoUrl(person);
+              return (
+                <div class="flex-none w-[220px] bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                  {photoUrl
+                    ? <img src={photoUrl} alt={person.name} class="w-full object-cover object-top" />
+                    : <div class="w-full h-[260px] bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-user text-4xl text-slate-300"></i></div>
+                  }
+                  <div class="p-4 text-center">
+                    <p class="font-montserrat font-bold text-brand-primary text-sm leading-tight mb-1">{person.name}</p>
+                    <p class="text-slate-500 text-xs leading-snug">{person.sport}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Next -->
+      <button id="pride-next" class="absolute right-0 top-1/3 -translate-y-1/2 translate-x-2 w-10 h-10 bg-brand-primary text-white rounded-full shadow-lg flex items-center justify-center z-10 hover:bg-brand-primary-bright transition-colors">
+        <i class="fa-solid fa-chevron-right text-sm"></i>
+      </button>
+
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  const cardWidth = 220 + 20; // width + gap
+  let current = 0;
+  let activeGroup = 'coaches';
+
+  const track = document.getElementById('pride-track');
+  const slider = document.getElementById('pride-slider');
+  const prevBtn = document.getElementById('pride-prev');
+  const nextBtn = document.getElementById('pride-next');
+  const tabs = document.querySelectorAll('.pride-tab');
+
+  function getVisibleCount() {
+    return Math.floor(slider.offsetWidth / cardWidth);
+  }
+
+  function getActiveCards() {
+    return document.getElementById(`pride-${activeGroup}`).children.length;
+  }
+
+  function updateSlider() {
+    const maxIndex = Math.max(0, getActiveCards() - getVisibleCount());
+    current = Math.min(current, maxIndex);
+    track.style.transform = `translateX(-${current * cardWidth}px)`;
+    prevBtn.style.opacity = current === 0 ? '0.4' : '1';
+    nextBtn.style.opacity = current >= maxIndex ? '0.4' : '1';
+  }
+
+  function switchTab(tab) {
+    activeGroup = tab;
+    current = 0;
+
+    // Toggle tab button styles
+    tabs.forEach(btn => {
+      const isActive = btn.dataset.tab === tab;
+      btn.classList.toggle('bg-brand-primary', isActive);
+      btn.classList.toggle('text-white', isActive);
+      btn.classList.toggle('bg-white', !isActive);
+      btn.classList.toggle('text-brand-primary', !isActive);
+    });
+
+    // Show/hide groups
+    document.querySelectorAll('.pride-group').forEach(group => {
+      group.classList.toggle('hidden', group.id !== `pride-${tab}`);
+    });
+
+    updateSlider();
+  }
+
+  prevBtn.addEventListener('click', () => { if (current > 0) { current--; updateSlider(); } });
+  nextBtn.addEventListener('click', () => {
+    const maxIndex = Math.max(0, getActiveCards() - getVisibleCount());
+    if (current < maxIndex) { current++; updateSlider(); }
+  });
+
+  tabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+  updateSlider();
+</script>

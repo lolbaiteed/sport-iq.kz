@@ -1,0 +1,32 @@
+---
+// src/components/LangSwitcher.astro
+const { langSwitch = [] } = Astro.props;
+const currentLocale = Astro.currentLocale ?? 'en';
+
+const current = langSwitch.find(l => l.url === `/${currentLocale}` || (currentLocale === 'en' && l.url === '/')) ?? langSwitch[0];
+---
+
+<div class="relative group">
+
+  <!-- Trigger button -->
+  <button class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition-colors">
+    <i class="fa-solid fa-globe"></i>
+    {current?.label}
+    <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+  </button>
+
+  <!-- Dropdown -->
+  <div class="absolute right-0 top-full mt-1 bg-brand-primary border rounded-xl shadow-lg overflow-hidden
+              opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[20px] max-h-[80px]">
+    {langSwitch.filter(lang => lang.label !== current?.label).map(lang => (
+      <a
+        href={lang.url}
+        class={`flex text-end items-center gap-2 px-6 py-2 text-sm hover:bg-white hover:text-brand-primary transition-colors
+          ${current?.label === lang.label ? 'text-brand-600 font-medium' : 'text-slate-50'}`}
+      >
+        {current?.label === lang.label && <i class="fa-solid fa-check text-xs"></i>}
+        {lang.label}
+      </a>
+    ))}
+  </div>
+</div>

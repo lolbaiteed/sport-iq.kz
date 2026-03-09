@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getArticles, getArticleBySlug, getStrapiImageUrl } from '../../lib/strapi.js';
+
+// Tell Astro to pre-render all article slugs at build time
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return articles.map(article => ({
+    params: { slug: article.attributes.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const article = await getArticleBySlug(slug);
+
+if (!article) {
+  return Astro.redirect('/blog');
+}
+
+const { title, description, content, publishedAt, cover } = article.attributes;
+const imageUrl = getStrapiImageUrl(cover);
+const date = publishedAt
+  ? new Date(publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : '';
+---
+
+<Base title={`${title} | MySite`} description={description}>
+
+  <article class="max-w-3xl mx-auto px-6 py-16">
+
+    <!-- Back -->
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm text-brand-600 hover:text-brand-800 mb-10 transition-colors">
+      ← Back to Blog
+    </a>
+
+    <!-- Header -->
+    <header class="mb-10">
+      {date && <p class="text-sm text-slate-400 mb-3">{date}</p>}
+      <h1 class="font-display text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">{title}</h1>
+      {description && <p class="text-lg text-slate-500 leading-relaxed">{description}</p>}
+    </header>
+
+    <!-- Cover Image -->
+    {imageUrl && (
+      <img
+        src={imageUrl}
+        alt={title}
+        class="w-full rounded-2xl object-cover max-h-96 mb-12 shadow-md"
+      />
+    )}
+
+    <!-- Content -->
+    <!-- 
+      Strapi returns rich text as Markdown or blocks depending on your version.
+      If using Strapi v4 with rich text (markdown), render as HTML below.
+      If using Strapi v5 with blocks, you'll need @strapi/blocks-react-renderer or similar.
+    -->
+    {content ? (
+      <div class="prose prose-slate prose-lg max-w-none prose-headings:font-display prose-a:text-brand-600" set:html={content} />
+    ) : (
+      <p class="text-slate-400 italic">No content yet.</p>
+    )}
+
+  </article>
+
+</Base>

@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getArticles } from '../../lib/strapi.js';
+
+const articles = await getArticles();
+---
+
+<Base title="Blog | MySite" description="All articles from MySite">
+
+  <section class="max-w-6xl mx-auto px-6 py-16">
+    <div class="mb-12">
+      <p class="text-brand-500 text-sm font-medium uppercase tracking-widest mb-1">Our blog</p>
+      <h1 class="font-display text-4xl font-bold text-slate-900">All Articles</h1>
+    </div>
+
+    {articles.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.map(article => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-32 text-slate-400">
+        <p class="text-2xl font-display mb-2">No articles yet</p>
+        <p class="text-sm">Create your first article in the Strapi admin panel.</p>
+      </div>
+    )}
+  </section>
+
+</Base>

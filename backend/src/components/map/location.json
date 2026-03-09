@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_map_locations",
+  "info": {
+    "displayName": "Location"
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "decimal"
+    },
+    "longitude": {
+      "type": "decimal"
+    },
+    "Address": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

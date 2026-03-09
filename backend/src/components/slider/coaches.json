@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_slider_coaches",
+  "info": {
+    "displayName": "Coaches"
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "MiddleName": {
+      "type": "string"
+    },
+    "LastName": {
+      "type": "string"
+    },
+    "Avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}

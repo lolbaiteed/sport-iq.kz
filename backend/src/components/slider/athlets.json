@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_slider_athlets",
+  "info": {
+    "displayName": "Athlets"
+  },
+  "options": {},
+  "attributes": {
+    "FirstName": {
+      "type": "string"
+    },
+    "MiddleName": {
+      "type": "string"
+    },
+    "LastName": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

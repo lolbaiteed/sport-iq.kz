@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "disciplines",
+  "info": {
+    "singularName": "discipline",
+    "pluralName": "disciplines",
+    "displayName": "discipline"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "coaches": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::coach.coach",
+      "mappedBy": "discipline"
+    },
+    "students": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::student.student",
+      "mappedBy": "discipline"
+    }
+  }
+}

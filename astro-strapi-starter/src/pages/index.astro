@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { getHome } from '../lib/strapi';
+import Slider from '../components/slider.astro'
+const vid = `${import.meta.env.STRAPI_URL}/uploads/back_0b2b45df27.mp4`
+const home = await getHome();
+const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach} = home ?? {};
+---
+
+<Base title="Home | MySite" description="Welcome to MySite — powered by Astro & Strapi" class="bg-bg-primary">
+  <section class="relative overflow-hidden h-[80vh] font-montserrat">
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+      <source src={vid} type="video/mp4"/>
+    </video>
+    <div class="absolute inset-0 bg-black/50 z-10"></div>
+    <div class="relative z-20 h-full flex flex-col items-center justify-center text-center px-6">
+      <h1 class="text-white font-black text-5xl md:text-6xl uppercase tracking-widest mb-6">{HeroTitle}</h1>
+      <p class="text-white font-light text-2xl">{HeroDesc}</p>
+    </div>
+  </section>
+  <section class="flex flex-col h-80 w-full items-center mt-20">
+    <h1 class="text-brand-primary text-4xl font-extrabold uppercase">{Achivments}</h1> 
+    <div class="flex flex-row mt-20 gap-6">
+      <div class="flex flex-col min-w-80 text-5xl text-center gap-5 shadow-xl py-10 rounded-xl border border-b-4 duration-300 border-b-yellow-500 hover:-translate-y-3">
+        <i class="fa-solid fa-trophy"></i>
+        <h1 class="text-gray-700 font-extrabold">150+</h1>
+        <p class="text-3xl font-bold">{Medals}</p>
+      </div>
+      <div class="flex flex-col min-w-80 text-5xl text-center gap-5 shadow-xl py-10 rounded-xl border border-b-4 duration-300 border-b-yellow-500 hover:-translate-y-3">
+        <i class="fa-solid fa-users"></i>
+        <h1 class="text-gray-700 font-extrabold">150+</h1>
+        <p class="text-3xl font-bold">{Sportsmens}</p>
+      </div>
+      <div class="flex flex-col min-w-80 text-5xl text-center gap-5 shadow-xl py-10 rounded-xl border border-b-4 duration-300 border-b-yellow-500 hover:-translate-y-3">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <h1 class="text-gray-700 font-extrabold">150+</h1>
+        <p class="text-3xl font-bold">{Scolarship}</p>
+      </div>
+    </div>
+  </section>
+  <section class="flex flex-col h-80 w-full items-center mt-40">
+    <h1 class="text-brand-primary text-4xl font-extrabold uppercase">{OurPride}</h1>
+    <div class="flex flex-row mt-10 gap-10">
+      <button data-tab="coaches" class="tab-btn border border-brand-primary rounded-2xl font-semibold text-2xl text-brand-primary py-3 px-6">{BtnCoach}</button>
+      <button data-tab="athlets" class="tab-btn border border-brand-primary rounded-2xl font-semibold text-2xl text-brand-primary py-3 px-8">{BtnAth}</button>
+    </div>
+    <div id="tab-ath" class="w-full hidden">
+      
+    </div>
+    <div id="tab-coach" class="w-full">
+      
+    </div>
+    <!-- <CoachSlider /> -->
+  </section>
+</Base>
