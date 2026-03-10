@@ -64,3 +64,7 @@ export function getStrapiImageUrl(image) {
   return url.startsWith('http') ? url : `${STRAPI_URL}${url}`;
 }
 
+export async function getCoaches(locale ='en') {
+  const res = await strapiGet(`/api/coaches?populate=*&locale=${locale}`);
+  return res.data ?? null;
+}

@@ -2,10 +2,10 @@
 import { getGlobal } from "../lib/strapi";
 import LangSwitcher from "../components/LangSwitcher.astro";
 const { description = "Powered by Astro + Strapi" } = Astro.props;
-const logoUrl = `${import.meta.env.STRAPI_URL}/uploads/OJSWM_516d3e7cac.png`;
-const logosFooter = [ `${import.meta.env.STRAPI_URL}/uploads/obl_dc18f6aa5f.png`,
-`${import.meta.env.STRAPI_URL}/uploads/oblsport_0d36b0b1aa.png`,
-`${import.meta.env.STRAPI_URL}/uploads/OJSWM_516d3e7cac.png`];
+const logoUrl = `${import.meta.env.STRAPI_URL}/uploads/OJSWM_055467dec8.png`;
+const logosFooter = [ `${import.meta.env.STRAPI_URL}/uploads/obl_e53d7a03ac.png`,
+`${import.meta.env.STRAPI_URL}/uploads/oblsport_63bf1ff9c0.png`,
+`${import.meta.env.STRAPI_URL}/uploads/OJSWM_055467dec8.png`];
 const global = await getGlobal();
 const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr } = global ?? {};
 ---
@@ -25,7 +25,6 @@ const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr } = gl
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-
 
   </head>
 

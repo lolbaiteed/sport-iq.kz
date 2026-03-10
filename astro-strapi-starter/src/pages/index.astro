@@ -1,10 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getHome } from '../lib/strapi';
+import { getHome, getCoaches } from '../lib/strapi';
 import Slider from '../components/slider.astro'
-const vid = `${import.meta.env.STRAPI_URL}/uploads/back_0b2b45df27.mp4`
+const vid = `${import.meta.env.STRAPI_URL}/uploads/back_7f09edb97c.mp4`
 const home = await getHome();
 const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach} = home ?? {};
+const coaches = await getCoaches('ru');
+console.log(coaches);
 ---
 
 <Base title="Home | MySite" description="Welcome to MySite — powered by Astro & Strapi" class="bg-bg-primary">
@@ -38,18 +40,12 @@ const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPrid
       </div>
     </div>
   </section>
-  <section class="flex flex-col h-80 w-full items-center mt-40">
+  <section class="flex flex-col h-80 w-full items-center mt-40 mb-60">
     <h1 class="text-brand-primary text-4xl font-extrabold uppercase">{OurPride}</h1>
     <div class="flex flex-row mt-10 gap-10">
-      <button data-tab="coaches" class="tab-btn border border-brand-primary rounded-2xl font-semibold text-2xl text-brand-primary py-3 px-6">{BtnCoach}</button>
-      <button data-tab="athlets" class="tab-btn border border-brand-primary rounded-2xl font-semibold text-2xl text-brand-primary py-3 px-8">{BtnAth}</button>
+      <button data-tab="coaches" class="pride-tab active-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-white bg-brand-primary transition-colors">{BtnCoach}</button>
+      <button data-tab="athlets" class="pride-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-brand-primary bg-white transition-colors">{BtnAth}</button>
     </div>
-    <div id="tab-ath" class="w-full hidden">
-      
-    </div>
-    <div id="tab-coach" class="w-full">
-      
-    </div>
-    <!-- <CoachSlider /> -->
+    <Slider  coaches={coaches} />
   </section>
 </Base>
