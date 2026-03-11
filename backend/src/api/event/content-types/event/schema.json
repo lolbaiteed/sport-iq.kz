@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "date": {
+      "type": "datetime"
+    },
+    "location": {
+      "type": "string"
+    },
+    "coaches": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::coach.coach",
+      "inversedBy": "events"
+    },
+    "state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "active",
+        "completed"
+      ]
+    },
+    "check_ins": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::check-in.check-in",
+      "mappedBy": "event"
+    }
+  }
+}

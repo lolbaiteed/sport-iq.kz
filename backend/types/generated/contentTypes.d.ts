@@ -430,6 +430,46 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCheckInCheckIn extends Struct.CollectionTypeSchema {
+  collectionName: 'check_ins';
+  info: {
+    displayName: 'CheckIn';
+    pluralName: 'check-ins';
+    singularName: 'check-in';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    coach: Schema.Attribute.Relation<'manyToOne', 'api::coach.coach'>;
+    coachSelfie: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    event: Schema.Attribute.Relation<'manyToOne', 'api::event.event'>;
+    latitude: Schema.Attribute.Decimal;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::check-in.check-in'
+    > &
+      Schema.Attribute.Private;
+    longitude: Schema.Attribute.Decimal;
+    moderatorNote: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    state: Schema.Attribute.Enumeration<['pending', 'approved', 'rejected']>;
+    studentPhotots: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCoachCoach extends Struct.CollectionTypeSchema {
   collectionName: 'coaches';
   info: {
@@ -452,6 +492,7 @@ export interface ApiCoachCoach extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    check_ins: Schema.Attribute.Relation<'oneToMany', 'api::check-in.check-in'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -465,6 +506,7 @@ export interface ApiCoachCoach extends Struct.CollectionTypeSchema {
       'manyToOne',
       'api::discipline.discipline'
     >;
+    events: Schema.Attribute.Relation<'manyToMany', 'api::event.event'>;
     firstName: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -530,6 +572,36 @@ export interface ApiDisciplineDiscipline extends Struct.CollectionTypeSchema {
       }>;
     publishedAt: Schema.Attribute.DateTime;
     students: Schema.Attribute.Relation<'oneToMany', 'api::student.student'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiEventEvent extends Struct.CollectionTypeSchema {
+  collectionName: 'events';
+  info: {
+    displayName: 'Event';
+    pluralName: 'events';
+    singularName: 'event';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    check_ins: Schema.Attribute.Relation<'oneToMany', 'api::check-in.check-in'>;
+    coaches: Schema.Attribute.Relation<'manyToMany', 'api::coach.coach'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.DateTime;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::event.event'> &
+      Schema.Attribute.Private;
+    location: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    state: Schema.Attribute.Enumeration<['draft', 'active', 'completed']>;
+    title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1312,8 +1384,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::check-in.check-in': ApiCheckInCheckIn;
       'api::coach.coach': ApiCoachCoach;
       'api::discipline.discipline': ApiDisciplineDiscipline;
+      'api::event.event': ApiEventEvent;
       'api::header.header': ApiHeaderHeader;
       'api::home.home': ApiHomeHome;
       'api::slider.slider': ApiSliderSlider;

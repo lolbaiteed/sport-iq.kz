@@ -23,19 +23,19 @@ function getPhotoUrl(person) {
     <div class="overflow-hidden mx-6" id="pride-slider">
       <div class="flex gap-5 transition-transform duration-500 ease-in-out" id="pride-track">
         <!-- Coaches -->
-        <div id="pride-coaches" class="pride-group flex gap-5">
+        <div id="pride-coaches" class="pride-group bg-none flex gap-5">
           {
             coaches.map((person) => {
               return (
-                <div class="flex-none w-56 bg-background-primary rounded-2xl shadow-xl overflow-hidden border">
+                <div class="flex-none w-[300px] bg-white rounded-2xl overflow-hidden border">
                   {person.avatar? (
                     <img
-                    src={`${STRAPI_URL}${person.avatar.formats.small.url}`}
+                    src={`${STRAPI_URL}${person.avatar.formats.large.url}`}
                       alt={person.lastName}
                       class="w-full object-cover object-top"
                     />
                   ) : (
-                    <div class="w-full h-[260px] bg-slate-100 flex items-center justify-center">
+                    <div class="w-[]h-[500px] bg-slate-100 flex items-center justify-center">
                       <i class="fa-solid fa-user text-4xl text-slate-300" />
                     </div>
                   )}
@@ -43,8 +43,8 @@ function getPhotoUrl(person) {
                     <p class="font-montserrat font-bold text-brand-primary text-sm leading-tight mb-1">
                     {person.firstName} {person.lastName}
                     </p>
-                    <p class="text-slate-500 text-xs leading-snug">
-                      {person.sport}
+                    <p class="text-slate-500 font-montserrat text-sm leading-snug">
+                      {person.discipline.name}
                     </p>
                   </div>
                 </div>
@@ -98,7 +98,7 @@ function getPhotoUrl(person) {
 </div>
 
 <script is:inline>
-  const cardWidth = 220 + 20; // width + gap
+  const cardWidth = 300 + 20; // width + gap
   let current = 0;
   let activeGroup = "coaches";
 

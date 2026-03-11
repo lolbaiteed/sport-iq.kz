@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "check_ins",
+  "info": {
+    "singularName": "check-in",
+    "pluralName": "check-ins",
+    "displayName": "CheckIn"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event",
+      "inversedBy": "check_ins"
+    },
+    "coach": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::coach.coach",
+      "inversedBy": "check_ins"
+    },
+    "latitude": {
+      "type": "decimal"
+    },
+    "longitude": {
+      "type": "decimal"
+    },
+    "coachSelfie": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "studentPhotots": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "state": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "moderatorNote": {
+      "type": "string"
+    }
+  }
+}

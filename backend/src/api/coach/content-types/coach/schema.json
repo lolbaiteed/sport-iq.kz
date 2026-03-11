@@ -79,6 +79,18 @@
           "localized": true
         }
       }
+    },
+    "events": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::event.event",
+      "mappedBy": "coaches"
+    },
+    "check_ins": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::check-in.check-in",
+      "mappedBy": "coach"
     }
   }
 }
