@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "moderator_bases",
+  "info": {
+    "singularName": "moderator-base",
+    "pluralName": "moderator-bases",
+    "displayName": "ModeratorBase"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "langswitch": {
+      "type": "component",
+      "component": "lang-switch.navlink",
+      "repeatable": true
+    },
+    "logout": {
+      "type": "string"
+    }
+  }
+}

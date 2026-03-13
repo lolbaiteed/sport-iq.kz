@@ -3,7 +3,7 @@ const { coaches = [], athletes = [] } = Astro.props;
 const STRAPI_URL = import.meta.env.STRAPI_URL;
 
 function getPhotoUrl(person) {
-  const url = person.photo?.data?.attributes?.url;
+const url = person.photo?.data?.attributes?.url;
   return url ? `${STRAPI_URL}${url}` : null;
 }
 ---
@@ -32,10 +32,10 @@ function getPhotoUrl(person) {
                     <img
                     src={`${STRAPI_URL}${person.avatar.formats.large.url}`}
                       alt={person.lastName}
-                      class="w-full object-cover object-top"
+                      class="w-full h-[320px] object-cover object-top"
                     />
                   ) : (
-                    <div class="w-[]h-[500px] bg-slate-100 flex items-center justify-center">
+                    <div class="bg-slate-100 flex items-center justify-center">
                       <i class="fa-solid fa-user text-4xl text-slate-300" />
                     </div>
                   )}
@@ -44,7 +44,7 @@ function getPhotoUrl(person) {
                     {person.firstName} {person.lastName}
                     </p>
                     <p class="text-slate-500 font-montserrat text-sm leading-snug">
-                      {person.discipline.name}
+                    {person.discipline.name}
                     </p>
                   </div>
                 </div>

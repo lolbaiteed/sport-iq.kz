@@ -5,7 +5,7 @@ import Slider from '../components/slider.astro'
 const vid = `${import.meta.env.STRAPI_URL}/uploads/back_7f09edb97c.mp4`
 const home = await getHome();
 const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach} = home ?? {};
-const coaches = await getCoaches('ru');
+const coaches = await getCoaches('en');
 console.log(coaches);
 ---
 
@@ -40,12 +40,12 @@ console.log(coaches);
       </div>
     </div>
   </section>
-  <section class="flex flex-col h-80 w-full items-center mt-40 mb-60">
+  <section class="flex flex-col h-80 w-full items-center mt-40 mb-72">
     <h1 class="text-brand-primary text-4xl font-extrabold uppercase">{OurPride}</h1>
     <div class="flex flex-row mt-10 gap-10">
       <button data-tab="coaches" class="pride-tab active-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-white bg-brand-primary transition-colors">{BtnCoach}</button>
       <button data-tab="athlets" class="pride-tab px-10 py-2 rounded-xl border-2 border-brand-primary font-montserrat font-bold text-brand-primary bg-white transition-colors">{BtnAth}</button>
     </div>
-    <Slider  coaches={coaches} />
+    <Slider coaches={coaches} />
   </section>
 </Base>
