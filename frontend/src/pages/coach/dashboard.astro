@@ -1,0 +1,23 @@
+---
+import { getMyCoachProfile } from '../../lib/strapi';
+const jwt = Astro.cookies.get('jwt')?.value;
+console.log(jwt);
+if (!jwt) return Astro.redirect('/login');
+
+const locale = Astro.currentLocale ?? 'en';
+const coach = await getMyCoachProfile(jwt, locale);
+
+if (!coach) return Astro.redirect('/login');
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+  </head>
+  <body>
+    <p>Welcome, {coach.firstName}</p> 
+  </body>
+</html>

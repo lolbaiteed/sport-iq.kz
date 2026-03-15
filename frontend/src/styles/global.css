@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #013564;
+  --color-brand-primary-bright: #026FCF;
+  --color-background-primary: #f4f7f6;
+  --font-family-montserrat: 'Montserrat', sans-serif;
+}

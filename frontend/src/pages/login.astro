@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+import { getLogin } from "../lib/strapi.js";
+const loginPageData = await getLogin();
+const { username, password, loginBtn, BackToSite, title } = loginPageData ?? {};
+---
+
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-background-primary flex items-center justify-center font-montserrat antialiased" style="height: 100vh;">
+    <form class="bg-white rounded-2xl px-10 py-10 flex flex-col gap-6 shadow-xl" id="lgForm">
+      <h1 class="text-center text-2xl font-semibold text-brand-primary">{title}</h1>
+      <input type="text" placeholder={username} class="border border-gray-200 rounded-lg px-8 py-2 text-sm outline-none focus:border-blue-300 text-center" name="identifier"/>
+      <input
+          type="password" placeholder={password} class="border border-gray-200 rounded-lg px-4 py-2 text-sm outline-none focus:border-blue-300 text-center" name="password"/>
+      <p id="errMsg" class="hidden text-red-500 text-sm"></p>
+      <button type="submit" class="bg-brand-primary text-white rounded-lg px-7 py-2 text-sm font-medium hover:bg-[#1a3f7a]">{loginBtn}</button>
+      <a href="/" class="text-center text-sm text-gray-400">{BackToSite}</p>
+    </form>
+    <script>
+      import { actions, isInputError } from 'astro:actions';
+      const form = document.getElementById('lgForm') as HTMLFormElement;
+
+      form.addEventListener('submit', async(e) => {
+        e.preventDefault();
+
+        const errMsg = document.getElementById('errMsg') as HTMLParagraphElement;
+        errMsg.classList.add('hidden');
+
+        const formData = new FormData(form);
+        const { data, error } = await actions.login(formData);
+
+        if (isInputError(error)) {
+          const firstErr = Object.values(err.fields)[0]?.[0];
+          errMsg.textContent = firstErr ?? 'ValidationError';
+          errMsg.classList.remove('hidden');
+          return;
+        }
+
+        if (error) {
+          errMsg.textContent = error.message;
+          errMsg.classList.remove('hidden');
+          return;
+        }
+
+        if (data?.role === 'moderator' || data?.role === 'administrator') {
+          window.location.href = '/moderator/dashboard';
+        } else {
+          window.location.href = '/coach/dashboard';
+        }
+      });
+    </script>
+  </body>
+</html>

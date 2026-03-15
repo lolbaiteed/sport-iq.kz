@@ -1,18 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getHome, getCoaches } from '../lib/strapi';
+import { getHome, getCoaches, getImageUrl} from '../lib/strapi';
 import Slider from '../components/slider.astro'
 const vid = `${import.meta.env.STRAPI_URL}/uploads/back_7f09edb97c.mp4`
 const home = await getHome();
-const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach} = home ?? {};
+const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach, BackVid} = home ?? {};
 const coaches = await getCoaches('en');
-console.log(coaches);
+console.log(BackVid)
 ---
 
 <Base title="Home | MySite" description="Welcome to MySite — powered by Astro & Strapi" class="bg-bg-primary">
   <section class="relative overflow-hidden h-[80vh] font-montserrat">
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-      <source src={vid} type="video/mp4"/>
+      <source src={getImageUrl(BackVid)} type="video/mp4"/>
     </video>
     <div class="absolute inset-0 bg-black/50 z-10"></div>
     <div class="relative z-20 h-full flex flex-col items-center justify-center text-center px-6">

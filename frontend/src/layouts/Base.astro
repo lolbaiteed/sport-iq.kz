@@ -1,13 +1,10 @@
 ---
-import { getGlobal } from "../lib/strapi";
+import '../styles/global.css'
+import { getGlobal, getImageUrl } from "../lib/strapi";
 import LangSwitcher from "../components/LangSwitcher.astro";
 const { description = "Powered by Astro + Strapi" } = Astro.props;
-const logoUrl = `${import.meta.env.STRAPI_URL}/uploads/OJSWM_055467dec8.png`;
-const logosFooter = [ `${import.meta.env.STRAPI_URL}/uploads/obl_e53d7a03ac.png`,
-`${import.meta.env.STRAPI_URL}/uploads/oblsport_63bf1ff9c0.png`,
-`${import.meta.env.STRAPI_URL}/uploads/OJSWM_055467dec8.png`];
 const global = await getGlobal();
-const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr } = global ?? {};
+const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr, LogoHeader, FooterLogos } = global ?? {};
 ---
 
 <!doctype html>
@@ -31,15 +28,15 @@ const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr } = gl
   <body class="bg-background-primary text-brand-primary font-montserrat antialiased">
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200">
-      <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="max-w-400 mx-auto px-6 py-4 flex items-center justify-between">
         <div class="flex flex-row justify-center">
-          <img src={logoUrl} class="w-28 mr-4" />
+          <img src={getImageUrl(LogoHeader)} class="w-28 mr-4" />
           <a href="/" class="font-montserrat text-2xl not-italic font-bold text-brand-primary tracking-tight self-center">{Title}</a>
         </div>
         <nav class="flex gap-6 text-xl font-medium text-slate-50">
           <p class="text-brand-primary self-center"><i class="fa-solid fa-phone"></i> {PhoneNumber}</p>
           <LangSwitcher langSwitch={LangSwitch} />
-          <button class="bg-brand-primary px-6 py-1 rounded-xl">{loginBtn}</button>
+          <a class="bg-brand-primary px-6 py-1 rounded-xl" href="/login">{loginBtn}</a>
         </nav>
       </div>
     </header>
@@ -63,11 +60,11 @@ const { Title, loginBtn, PhoneNumber, LangSwitch, FooterTitle, FooterAddr } = gl
           </div>
         </div>
         <div class="flex flex-row mt-12 gap-12">
-          {logosFooter.map(logo => (
-            <img src={logo} alt="" class="w-[220px] h-[220px]"></img>
+          {FooterLogos.map(logo => (
+            <img src={getImageUrl(logo)} alt="" class="w-55 h-55"></img>
           ))}
         </div>
-        <div class="flex flex-row mt-12 border-yellow-500 border rounded-xl justify-center h-[300px]">
+        <div class="flex flex-row mt-12 border-yellow-500 border rounded-xl justify-center h-75">
       </div<div style="position:relative;overflow:hidden;"><a href="https://yandex.kz/maps/ru/10303/taldikorgan/?utm_medium=mapframe&utm_source=maps" style="color:#eee;font-size:12px;position:absolute;top:0px;">Талдыкорган</a><a href="https://yandex.kz/maps/ru/10303/taldikorgan/house/bolashaq_yqsham_audany_4b/Y0EYdQNnSkMAQFpufXV4dnpiZA==/?ll=78.347673%2C44.997655&utm_medium=mapframe&utm_source=maps&z=19.4" style="color:#eee;font-size:12px;position:absolute;top:14px;">Микрорайон Болашак, 4Б — Яндекс Карты</a><iframe src="https://yandex.kz/map-widget/v1/?ll=78.347673%2C44.997655&mode=whatshere&whatshere%5Bpoint%5D=78.347296%2C44.997614&whatshere%5Bzoom%5D=17&z=19.4" width="500" height="300" frameborder="1" allowfullscreen="true" style="position:relative;"></iframe></div>
     </footer>
   </body>
