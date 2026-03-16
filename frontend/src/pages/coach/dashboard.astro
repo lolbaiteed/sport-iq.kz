@@ -1,7 +1,6 @@
 ---
 import { getMyCoachProfile } from '../../lib/strapi';
 const jwt = Astro.cookies.get('jwt')?.value;
-console.log(jwt);
 if (!jwt) return Astro.redirect('/login');
 
 const locale = Astro.currentLocale ?? 'en';

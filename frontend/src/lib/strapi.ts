@@ -245,7 +245,6 @@ export async function getCoaches(locale = 'en'): Promise<Coach[]> {
 
 export async function getMyCoachProfile(jwt: string, locale = 'en'): Promise<Coach | null> {
   const user = await getMe(jwt);
-  console.log(jwt);
 
   const query = qs.stringify({
     filters: {
@@ -259,7 +258,6 @@ export async function getMyCoachProfile(jwt: string, locale = 'en'): Promise<Coa
     locale,
   }, { encodeValuesOnly: true });
 
-  console.log(query)
 
   const res = await strapiGetAuth<Coach[]>(`/api/coaches?${query}`, jwt);
   return res.data?.[0] ?? null;

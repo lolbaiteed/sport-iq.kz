@@ -34,7 +34,6 @@ export const server = {
       });
       const user = await userRes.json();
       const role = user.role?.name?.toLowerCase();
-      console.log(role);
 
       // Step 3 — Check role is allowed
       if (role !== 'moderator' && role !== 'administrator' && role !== 'authenticated') {

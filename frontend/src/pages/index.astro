@@ -6,7 +6,6 @@ const vid = `${import.meta.env.STRAPI_URL}/uploads/back_7f09edb97c.mp4`
 const home = await getHome();
 const { HeroTitle, HeroDesc, Achivments, Medals, Sportsmens, Scolarship, OurPride, BtnAth, BtnCoach, BackVid} = home ?? {};
 const coaches = await getCoaches('en');
-console.log(BackVid)
 ---
 
 <Base title="Home | MySite" description="Welcome to MySite — powered by Astro & Strapi" class="bg-bg-primary">
