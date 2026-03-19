@@ -307,6 +307,8 @@ export async function getEventById(jwt: string, documentId: string): Promise<Eve
   return res.data ?? null;
 }
 
+
+
 //Check-Ins
 export async function getCheckins(jwt: string, eventDocumentId: string): Promise<CheckIn[]> {
   const query = qs.stringify({
@@ -404,7 +406,7 @@ export async function getCoachById(
   }, { encodeValuesOnly: true });
 
   const res = await strapiGetAuth<{ data: Coach }>(`/api/coaches/${documentId}?${query}`, jwt);
-  return res.data?.data ?? null;
+  return res.data ?? null;
 }
 
 export async function getEventsByCoach(
@@ -421,6 +423,7 @@ export async function getEventsByCoach(
   }, { encodeValuesOnly: true });
 
   const res = await strapiGetAuth<{ data: Event[] }>(`/api/events?${query}`, jwt);
+  console.log(res);
   return res.data?.data ?? [];
 }
 

@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const form = await request.formData();
   const coachId = form.get('coachId');
   const title = form.get('title');
-  const date = from.get('date');
+  const date = form.get('date');
   const location = form.get('location');
 
   if (!title || !coachId) {
@@ -20,8 +20,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       title,
       date: date || null,
       location: location || null,
-      status: 'draft',
-      coaches: [Number(coachId)],
+      state: 'draft',
+      coaches: [coachId] 
     }
   }, jwt);
 
@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const disciplineId = form.get('disciplineId');
   return Response.redirect(
-    new URL(`/dashboard?dicipline=${disciplineId}&coach=${coachId}`, request.url),
+    new URL(`/moderator/dashboard?discipline=${disciplineId}&coach=${coachId}`, request.url),
     303
   );
 };

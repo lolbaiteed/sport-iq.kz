@@ -1,12 +1,32 @@
 ---
-import { getMyCoachProfile } from '../../lib/strapi';
+export const prerender = false;
+
+import '../../styles/global.css';
+import { getMyCoachProfile, getEventsByCoach, strapiPostAuth } from '../../lib/strapi';
+
 const jwt = Astro.cookies.get('jwt')?.value;
 if (!jwt) return Astro.redirect('/login');
 
-const locale = Astro.currentLocale ?? 'en';
-const coach = await getMyCoachProfile(jwt, locale);
-
+const coach = await getMyCoachProfile(jwt);
 if (!coach) return Astro.redirect('/login');
+
+// get active event only
+import qs from 'qs';
+import { strapiGetAuth } from '../../lib/strapi';
+
+const activeEventQuery = qs.stringify({
+  filters: {
+    coaches: { documentId: { $eq: coach.documentId } },
+    status: { $eq: 'active' },
+  },
+  fields: ['title', 'date', 'location', 'status'],
+  pagination: { limit: 1 },
+}, { encodeValuesOnly: true });
+
+const activeEventRes = await strapiGetAuth(`/api/events?${activeEventQuery}`, jwt);
+const activeEvent = activeEventRes.data?.[0] ?? null;
+
+const coachFullName = [coach.lastName, coach.firstName, coach.middleName].filter(Boolean).join(' ');
 ---
 
 <!DOCTYPE html>
@@ -14,9 +34,246 @@ if (!coach) return Astro.redirect('/login');
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
+    <title>{coachFullName}</title>
   </head>
-  <body>
-    <p>Welcome, {coach.lastName} {coach.firstName}</p> 
+  <body class="min-h-screen bg-gray-100 flex items-center justify-center font-montserrat antialiased p-6">
+    <div class="flex flex-col w-full max-w-3xl bg-white rounded-2xl shadow-sm">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between mx-8 mt-6 pb-4 border-b border-gray-200">
+        <h1 class="text-xl font-semibold">{coachFullName}</h1>
+        <a href="/login" class="text-sm bg-red-600 hover:bg-red-700 transition-colors py-2 px-4 rounded-xl text-white">
+          Logout
+        </a>
+      </div>
+
+      <div class="p-8 flex flex-col gap-8">
+
+        <!-- Active event card -->
+        <div class="border-l-4 border-blue-500 bg-blue-50 rounded-xl p-6">
+          <p class="text-xs font-semibold text-blue-500 uppercase tracking-wide mb-2">Active event</p>
+          {activeEvent
+            ? <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-1">{activeEvent.title}</h2>
+                {activeEvent.date &&
+                  <p class="text-sm text-gray-500 mb-1">{activeEvent.date}</p>
+                }
+                {activeEvent.location &&
+                  <a
+                    href={activeEvent.location}
+                    target="_blank"
+                    class="text-sm text-blue-600 hover:underline mb-4 inline-block"
+                  >
+                    View on map
+                  </a>
+                }
+                <div class="mt-4">
+                  <button
+                    id="checkin-btn"
+                    class="bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 px-5 rounded-xl transition-colors"
+                  >
+                    Check in
+                  </button>
+                </div>
+              </div>
+            : <p class="text-sm text-gray-500">No active event at the moment.</p>
+          }
+        </div>
+
+        <!-- Check-in form (hidden by default) -->
+        {activeEvent &&
+          <div id="checkin-form" class="hidden border border-gray-200 rounded-xl p-6 flex flex-col gap-4">
+            <h3 class="font-semibold">Check-in</h3>
+
+            <!-- Selfie -->
+            <div>
+              <label class="text-sm text-gray-500 mb-1 block">Your selfie</label>
+              <div class="relative">
+                <video id="selfie-preview" class="w-full rounded-xl bg-gray-100 aspect-video object-cover hidden" autoplay playsinline></video>
+                <canvas id="selfie-canvas" class="hidden"></canvas>
+                <img id="selfie-result" class="w-full rounded-xl object-cover aspect-video hidden" />
+                <div id="selfie-placeholder" class="w-full rounded-xl bg-gray-100 aspect-video flex items-center justify-center text-gray-400 text-sm">
+                  Camera not started
+                </div>
+              </div>
+              <div class="flex gap-2 mt-2">
+                <button id="start-camera-btn" type="button" class="text-sm border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
+                  Open camera
+                </button>
+                <button id="take-selfie-btn" type="button" class="text-sm border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors hidden">
+                  Take photo
+                </button>
+                <button id="retake-selfie-btn" type="button" class="text-sm border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors hidden">
+                  Retake
+                </button>
+              </div>
+            </div>
+
+            <!-- Student photos -->
+            <div>
+              <label class="text-sm text-gray-500 mb-1 block">Photo of students</label>
+              <input
+                id="student-photos"
+                type="file"
+                accept="image/*"
+                multiple
+                class="text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:border file:border-gray-200 file:rounded-lg file:text-sm file:bg-white hover:file:bg-gray-50"
+              />
+            </div>
+
+            <!-- GPS status -->
+            <div id="gps-status" class="text-sm text-gray-400">GPS: not acquired</div>
+
+            <!-- Submit -->
+            <button
+              id="submit-checkin-btn"
+              type="button"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5 px-5 rounded-xl transition-colors disabled:opacity-50"
+            >
+              Submit check-in
+            </button>
+
+            <p id="checkin-error" class="text-sm text-red-500 hidden"></p>
+          </div>
+        }
+
+        <!-- Students list -->
+        <div>
+          <h3 class="font-semibold mb-4">Athletes</h3>
+          <div class="flex flex-col divide-y divide-gray-100">
+            {(coach.students ?? []).map(student => (
+              <div class="py-3 px-2 text-sm">
+                {student.lastName} {student.firstName} {student.middleName ?? ''}
+              </div>
+            ))}
+            {(coach.students ?? []).length === 0 &&
+              <p class="text-sm text-gray-400">No athletes linked yet.</p>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script define:vars={{ eventDocumentId: activeEvent?.documentId ?? null }}>
+      const checkinBtn = document.getElementById('checkin-btn');
+      const checkinForm = document.getElementById('checkin-form');
+      const startCameraBtn = document.getElementById('start-camera-btn');
+      const takeSelfieBtn = document.getElementById('take-selfie-btn');
+      const retakeSelfieBtn = document.getElementById('retake-selfie-btn');
+      const selfiePreview = document.getElementById('selfie-preview');
+      const selfieCanvas = document.getElementById('selfie-canvas');
+      const selfieResult = document.getElementById('selfie-result');
+      const selfiePlaceholder = document.getElementById('selfie-placeholder');
+      const gpsStatus = document.getElementById('gps-status');
+      const submitBtn = document.getElementById('submit-checkin-btn');
+      const errorEl = document.getElementById('checkin-error');
+      const studentPhotosInput = document.getElementById('student-photos');
+
+      let stream = null;
+      let selfieBlob = null;
+      let coords = null;
+
+      // Toggle form
+      checkinBtn?.addEventListener('click', () => {
+        checkinForm?.classList.toggle('hidden');
+        acquireGPS();
+      });
+
+      // GPS
+      function acquireGPS() {
+        if (!navigator.geolocation) {
+          gpsStatus.textContent = 'GPS: not supported';
+          return;
+        }
+        gpsStatus.textContent = 'GPS: acquiring...';
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+            gpsStatus.textContent = 'GPS: ' + coords.latitude.toFixed(5) + ', ' + coords.longitude.toFixed(5);
+          },
+          () => { gpsStatus.textContent = 'GPS: failed to acquire'; }
+        );
+      }
+
+      // Camera
+      startCameraBtn?.addEventListener('click', async () => {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        selfiePreview.srcObject = stream;
+        selfiePreview.classList.remove('hidden');
+        selfiePlaceholder.classList.add('hidden');
+        startCameraBtn.classList.add('hidden');
+        takeSelfieBtn.classList.remove('hidden');
+      });
+
+      takeSelfieBtn?.addEventListener('click', () => {
+        selfieCanvas.width = selfiePreview.videoWidth;
+        selfieCanvas.height = selfiePreview.videoHeight;
+        selfieCanvas.getContext('2d').drawImage(selfiePreview, 0, 0);
+        selfieCanvas.toBlob(blob => {
+          selfieBlob = blob;
+          selfieResult.src = URL.createObjectURL(blob);
+          selfieResult.classList.remove('hidden');
+          selfiePreview.classList.add('hidden');
+          takeSelfieBtn.classList.add('hidden');
+          retakeSelfieBtn.classList.remove('hidden');
+          stream?.getTracks().forEach(t => t.stop());
+        }, 'image/jpeg', 0.85);
+      });
+
+      retakeSelfieBtn?.addEventListener('click', async () => {
+        selfieBlob = null;
+        selfieResult.classList.add('hidden');
+        retakeSelfieBtn.classList.add('hidden');
+        selfiePreview.classList.remove('hidden');
+        takeSelfieBtn.classList.remove('hidden');
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        selfiePreview.srcObject = stream;
+      });
+
+      // Submit
+      submitBtn?.addEventListener('click', async () => {
+        errorEl.classList.add('hidden');
+
+        if (!selfieBlob) {
+          errorEl.textContent = 'Please take a selfie first.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+        if (!coords) {
+          errorEl.textContent = 'GPS location not acquired yet. Please wait.';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        const formData = new FormData();
+        formData.append('eventDocumentId', eventDocumentId);
+        formData.append('latitude', coords.latitude);
+        formData.append('longitude', coords.longitude);
+        formData.append('selfie', selfieBlob, 'selfie.jpg');
+
+        const studentFiles = studentPhotosInput.files;
+        for (let i = 0; i < studentFiles.length; i++) {
+          formData.append('studentPhotos', studentFiles[i]);
+        }
+
+        const res = await fetch('/api/checkin', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (res.ok) {
+          checkinForm.innerHTML = '<p class="text-green-600 font-medium">Check-in submitted successfully!</p>';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit check-in';
+          errorEl.textContent = 'Failed to submit. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+      });
+    </script>
   </body>
 </html>

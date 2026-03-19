@@ -136,20 +136,38 @@ const coachFullName = coach
             </div>
 
             <!-- Add athlete form -->
-            <div class="border border-gray-200 rounded-xl p-6">
-              <h3 class="font-semibold mb-4">Add athlete</h3>
-              <form method="POST" action="/api/add-student" class="flex flex-col gap-3">
-                <input type="hidden" name="coachId" value={coachId} />
-                <input type="text" name="firstName" placeholder="First name" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
-                <input type="text" name="lastName" placeholder="Last name" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
-                <input type="text" name="middleName" placeholder="Middle name (optional)" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
-                <input type="date" name="birthDate" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg transition-colors">
-                  Add
-                </button>
-              </form>
-            </div>
+<div class="border border-gray-200 rounded-xl p-6">
+  <h3 class="font-semibold mb-4">Add athletes to event</h3>
+  {(coach.students ?? []).length === 0 
+    ? <p class="text-sm text-gray-400">No athletes linked to this coach.</p>
+    : <form method="POST" action="/api/add-students-to-event" class="flex flex-col gap-3">
+        <input type="hidden" name="coachId" value={coachId} />
+        <input type="hidden" name="disciplineId" value={disciplineId} />
 
+        <!-- Event selector -->
+        <select name="eventId" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full">
+          <option value="">Select event...</option>
+          {events.map(event => (
+            <option value={event.documentId}>{event.title}</option>
+          ))}
+        </select>
+
+        <!-- Students checkboxes -->
+        <div class="flex flex-col gap-2 mt-1">
+          {(coach.students ?? []).map(student => (
+            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 px-2 py-1.5 rounded-lg">
+              <input type="checkbox" name="studentIds" value={student.documentId} class="rounded" />
+              {student.lastName} {student.firstName} {student.middleName ?? ''}
+            </label>
+          ))}
+        </div>
+
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg transition-colors mt-1">
+          Add to event
+        </button>
+      </form>
+  }
+</div>
           </div>
         }
         {coachId && coach &&
