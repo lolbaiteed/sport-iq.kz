@@ -1,0 +1,202 @@
+---
+export const prerender = false;
+import '../../styles/global.css';
+import { getModDash, getCoachesByDiscipline, getCoachById, getEventsByCoach } from '../../lib/strapi';
+import LangSwitcher from '../../components/DashLangSwitch.astro';
+
+const jwt = Astro.cookies.get('jwt')?.value;
+if (!jwt) return Astro.redirect('/login');
+
+const locale = Astro.currentLocale ?? 'en';
+const dash = await getModDash(locale, jwt);
+if (!dash) return Astro.redirect('/login');
+
+const disciplineId = Astro.url.searchParams.get('discipline');
+const coachId = Astro.url.searchParams.get('coach'); // will now hold documentId value
+const coach = coachId ? await getCoachById(coachId, jwt) : null;
+const currentDiscipline = dash.disciplines.find(d => String(d.id) === disciplineId);
+
+const coaches = disciplineId && !coachId
+  ? await getCoachesByDiscipline(disciplineId, jwt)
+  : [];
+
+const events = coachId ? await getEventsByCoach(coachId, jwt) : [];
+
+const disciplineLinks = dash.disciplines.map(d => ({
+  ...d,
+  href: '?discipline=' + d.id,
+}));
+
+const coachLinks = coaches.map(c => ({
+  ...c,
+  href: '?discipline=' + disciplineId + '&coach=' + c.documentId, // ✅ documentId
+  fullName: [c.lastName, c.firstName, c.middleName].filter(Boolean).join(' '),
+}));
+
+const coachFullName = coach
+  ? [coach.lastName, coach.fristName, coach.middleName].filter(Boolean).join(' ')
+  : '';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{dash.title}</title>
+  </head>
+  <body class="min-h-screen bg-gray-100 flex items-center justify-center font-montserrat antialiased p-6">
+    <div class="flex flex-col w-full max-w-4xl bg-white rounded-2xl shadow-sm">
+
+      <!-- ===== HEADER ===== -->
+      <div class="flex items-center justify-between mx-8 mt-6 pb-4 border-b border-gray-200">
+        <h1 class="text-2xl font-semibold">{dash.title}</h1>
+        <div class="flex items-center gap-4">
+          <LangSwitcher langs={dash.langswitch} currentLocale={Astro.currentLocale} />
+          <a href="/login" class="text-sm bg-red-600 hover:bg-red-700 transition-colors py-2 px-4 rounded-xl text-white">
+            {dash.logout}
+          </a>
+        </div>
+      </div>
+
+      <!-- ===== CONTENT ===== -->
+      <div class="p-8">
+
+        <!-- ===== VIEW 1: DISCIPLINE GRID (no params) ===== -->
+        {!disciplineId &&
+          <h2 class="text-lg font-medium mb-5">{dash.SelectSport}</h2>
+        }
+        {!disciplineId &&
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {disciplineLinks.map((discipline) => (
+              <a
+                href={discipline.href}
+                class="flex items-center justify-center text-center shadow-sm border border-gray-200 py-8 px-3 rounded-xl hover:-translate-y-1 hover:shadow-md transition-all duration-200"
+              >
+                <p class="text-sm font-bold text-brand-primary">{discipline.name}</p>
+              </a>
+            ))}
+          </div>
+        }
+
+        <!-- ===== VIEW 2: COACHES LIST (?discipline=6) ===== -->
+        {disciplineId && !coachId &&
+          <a href="?" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-6">
+            ← {dash.SelectSport}
+          </a>
+        }
+        {disciplineId && !coachId &&
+          <h2 class="text-lg font-medium mb-5">{currentDiscipline?.name}</h2>
+        }
+        {disciplineId && !coachId &&
+          <div class="flex flex-col divide-y divide-gray-100">
+            {coachLinks.map((coach) => (
+              <a
+                href={coach.href}
+                class="flex items-center justify-between py-4 px-2 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <span class="font-medium">{coach.fullName}</span>
+                <span class="text-sm text-blue-600">Manage →</span>
+              </a>
+            ))}
+            {coaches.length === 0 &&
+              <p class="text-gray-400 text-sm py-4">No coaches found.</p>
+            }
+          </div>
+        }
+
+        <!-- ===== VIEW 3: COACH DETAIL (?discipline=6&coach=12) ===== -->
+        {coachId && coach &&
+          <a
+            href={'?discipline=' + disciplineId}
+            class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-6"
+          >
+            ← {currentDiscipline?.name}
+          </a>
+        }
+        {coachId && coach &&
+          <h2 class="text-xl font-semibold mb-8">{coachFullName}</h2>
+        }
+        {coachId && coach &&
+            <!-- Create event form -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <div class="border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold mb-4">Create event</h3>
+              <form method="POST" action="/api/create-event" class="flex flex-col gap-3">
+                <input type="hidden" name="coachId" value={coachId} />
+                <input type="hidden" name="disciplineId" value={disciplineId}>
+                <input type="text" name="title" placeholder="Title" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <input type="date" name="date" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <input type="text" name="location" placeholder="Location (Yandex Maps link)" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg transition-colors">
+                  Create
+                </button>
+              </form>
+            </div>
+
+            <!-- Add athlete form -->
+            <div class="border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold mb-4">Add athlete</h3>
+              <form method="POST" action="/api/add-student" class="flex flex-col gap-3">
+                <input type="hidden" name="coachId" value={coachId} />
+                <input type="text" name="firstName" placeholder="First name" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <input type="text" name="lastName" placeholder="Last name" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <input type="text" name="middleName" placeholder="Middle name (optional)" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <input type="date" name="birthDate" class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full" />
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg transition-colors">
+                  Add
+                </button>
+              </form>
+            </div>
+
+          </div>
+        }
+        {coachId && coach &&
+          <div class="mt-8">
+            <h3 class="font-semibold mb-4">Events</h3>
+            <div class="flex flex-col divide-y divide-gray-100">
+              {events.map(event => (
+                <div class="flex items-center justify-between py-3 px-2">
+                  <div>
+                    <p class="font-medium text-sm">{event.title}</p>
+                    <p class="text-xs text-gray-400">{event.date} · {event.location}</p>
+                  </div>
+                  <span class:list={[
+                    'text-xs px-2 py-1 rounded-full',
+                    event.status === 'active' ? 'bg-green-100 text-green-700' : '',
+                    event.status === 'draft' ? 'bg-gray-100 text-gray-500' : '',
+                    event.status === 'completed' ? 'bg-blue-100 text-blue-600' : '',
+                  ]}>
+                    {event.status}
+                  </span>
+                </div>
+              ))}
+              {events.length === 0 &&
+                <p class="text-gray-400 text-sm py-4">No events yet.</p>
+              }
+            </div>
+          </div>
+        }
+        {coachId && coach &&
+          <div class="mt-8">
+            <h3 class="font-semibold mb-4">Athletes</h3>
+            <div class="flex flex-col divide-y divide-gray-100">
+              {(coach.students ?? []).map(student => (
+                <div class="py-3 px-2 text-sm">
+                  {student.lastName} {student.firstName} {student.middleName ?? ''}
+                </div>
+              ))}
+              {(coach.students ?? []).length === 0 &&
+                <p class="text-gray-400 text-sm py-4">No athletes yet.</p>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+      <!-- ===== END CONTENT ===== -->
+
+    </div>
+  </body>
+</html>

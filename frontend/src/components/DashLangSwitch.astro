@@ -1,0 +1,100 @@
+---
+// src/components/LangSwitcher.astro
+// Usage: <LangSwitcher langs={langswitch} currentLocale={Astro.currentLocale} />
+
+interface Lang {
+  id: number;
+  label: string;
+  url: string;
+}
+
+interface Props {
+  langs: Lang[];
+  currentLocale?: string;
+}
+
+const { langs = [], currentLocale = 'en' } = Astro.props;
+const current = langs.find(l => l.label.toLowerCase() === currentLocale.toLowerCase()) ?? langs[0];
+---
+
+<div class="relative inline-block self-center" id="lang-switcher">
+  <button
+    id="lang-trigger"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-label="Select language"
+    class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-mono tracking-wide
+           border border-white/10 rounded-lg bg-transparent text-slate-600
+           hover:bg-white/5 hover:border-white/20
+           transition-colors duration-150 cursor-pointer select-none"
+  >
+    <span>{current?.label ?? '—'}</span>
+    <svg
+      id="lang-chevron"
+      class="w-3 h-3 opacity-50 transition-transform duration-200"
+      viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <ul
+    id="lang-dropdown"
+    role="listbox"
+    aria-label="Languages"
+    class="absolute right-0 top-[calc(100%+6px)] min-w-full z-50 list-none m-0 p-1
+           bg-brand-primary border border-white/10 rounded-xl shadow-xl
+           opacity-0 scale-95 -translate-y-1 pointer-events-none
+           transition-all duration-150 origin-top-right"
+  >
+    {langs.map((lang) => (
+      <li role="option" aria-selected={lang.id === current?.id}>
+        <a
+          href={lang.url}
+          class:list={[
+            'block px-3 py-1.5 rounded-md text-sm font-mono tracking-wide no-underline transition-colors duration-100',
+            lang.id === current?.id
+              ? 'text-slate-800 bg-background-primary'
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          ]}
+        >
+          {lang.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<script>
+  const switcher = document.getElementById('lang-switcher');
+  const trigger = document.getElementById('lang-trigger');
+  const dropdown = document.getElementById('lang-dropdown');
+  const chevron = document.getElementById('lang-chevron');
+
+  function open() {
+    dropdown?.classList.remove('opacity-0', 'scale-95', '-translate-y-1', 'pointer-events-none');
+    dropdown?.classList.add('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    chevron?.classList.add('rotate-180');
+    trigger?.setAttribute('aria-expanded', 'true');
+  }
+
+  function close() {
+    dropdown?.classList.add('opacity-0', 'scale-95', '-translate-y-1', 'pointer-events-none');
+    dropdown?.classList.remove('opacity-100', 'scale-100', 'translate-y-0', 'pointer-events-auto');
+    chevron?.classList.remove('rotate-180');
+    trigger?.setAttribute('aria-expanded', 'false');
+  }
+
+  trigger?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown?.classList.contains('opacity-100') ? close() : open();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!switcher?.contains(e.target as Node)) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+</script>

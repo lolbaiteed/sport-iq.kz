@@ -22,6 +22,15 @@ export interface StrapiImageFormat {
   size: number;
 }
 
+export interface ModerDash {
+  title:string;
+  id:string;
+  logout:string;
+  selectsport: string;
+  LangSwitch: LangSwitch[];
+  disciplines: Discipline[];
+}
+
 export interface StrapiVid {
   id: string;
   documentId: string;
@@ -47,7 +56,7 @@ export interface Student {
 export interface Coach {
   id: number;
   documentId: string;
-  fristName: string;
+  firstName: string;
   lastName: string
   middleName?: string;
   Desc?: string;
@@ -346,5 +355,92 @@ export async function getLogin(locale = 'en'): Promise<Login> {
     }
   });
   const res = await strapiGet<Login>(`/api/login?${query}`);
+  return res.data ?? null;}
+
+export async function getModDash(locale = 'en', jwt: string): Promise<ModerDash | null> {
+  const query = qs.stringify({
+    locale,
+    fields: ['title','logout', 'SelectSport'],
+    populate: {
+      langswitch: true,
+      disciplines: {
+        fields: ['name', 'id'],
+      },
+    }
+  }, {encodeValuesOnly: true});
+  const res = await strapiGetAuth<ModerDash>(`/api/moderator-base?${query}`, jwt);
   return res.data ?? null;
+}
+
+export async function getCoachesByDiscipline(disciplineId: string, jwt: string): Promise<Coach[]> {
+  const query = qs.stringify({
+    filters: {
+      discipline: {
+        id: {$eq: disciplineId},
+      },
+    },
+    fields: ['firstName', 'lastName', 'middleName'],
+  }, {encodeValuesOnly: true});
+
+  const res = await strapiGetAuth<{ data: Coach[] }>(`/api/coaches?${query}`, jwt);
+  // console.log('raw response:', JSON.stringify(res, null, 2));
+  return res.data ?? [];
+}
+
+export async function getCoachById(
+  documentId: string,
+  jwt: string
+): Promise<Coach | null> {
+  const query = qs.stringify({
+    fields: ['firstName', 'lastName', 'middleName'],
+    populate: {
+      students: {
+        fields: ['firstName', 'lastName', 'middleName'],
+      },
+      discipline: {
+        fields: ['name'],
+      },
+    },
+  }, { encodeValuesOnly: true });
+
+  const res = await strapiGetAuth<{ data: Coach }>(`/api/coaches/${documentId}?${query}`, jwt);
+  return res.data?.data ?? null;
+}
+
+export async function getEventsByCoach(
+  coachId: string,
+  jwt: string
+): Promise<Event[]> {
+  const query = qs.stringify({
+    filters: {
+      coaches: {
+        id: { $eq: coachId }
+      }
+    },
+    fields: ['title', 'date', 'location', 'state'],
+  }, { encodeValuesOnly: true });
+
+  const res = await strapiGetAuth<{ data: Event[] }>(`/api/events?${query}`, jwt);
+  return res.data?.data ?? [];
+}
+
+export async function strapiPostAuth<T>(
+  path: string,
+  body: unknown,
+  jwt: string
+): Promise<{ data: T | null }> {
+  const res = await fetch(STRAPI_URL + path, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwt}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    console.error('Strapi POST error:', await res.text());
+    return { data: null };
+  }
+  return res.json();
 }

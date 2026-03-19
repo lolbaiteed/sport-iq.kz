@@ -938,6 +938,10 @@ export interface ApiModeratorBaseModeratorBase extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    disciplines: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::discipline.discipline'
+    >;
     langswitch: Schema.Attribute.Component<'lang-switch.navlink', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -947,6 +951,7 @@ export interface ApiModeratorBaseModeratorBase extends Struct.SingleTypeSchema {
       Schema.Attribute.Private;
     logout: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    SelectSport: Schema.Attribute.String;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

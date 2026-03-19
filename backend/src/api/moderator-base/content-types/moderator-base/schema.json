@@ -21,6 +21,14 @@
     },
     "logout": {
       "type": "string"
+    },
+    "disciplines": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::discipline.discipline"
+    },
+    "SelectSport": {
+      "type": "string"
     }
   }
 }
